@@ -138,13 +138,13 @@ function draw() {
     gameState=END
   } else {    
     stroke("black")
-
     fill("yellow")
     textSize(30)
     text("Score: "+treasureCollection,140,300)
     fill("red")
     textSize(20)
-    text("Continue? Press the Space Bar", 70,200)
+    text("Continue?  Press the Space Bar", 70,200)
+    text("Chances Left: "+chance+" -1 :)",110,150)
     swordGroup.destroyEach();jwelleryG.destroyEach()
     obstacleG.destroyEach()
     cashG.destroyEach();
@@ -161,7 +161,9 @@ function draw() {
     swordGroup.destroyEach();jwelleryG.destroyEach()
     obstacleG.destroyEach()
     cashG.destroyEach();
-    diamondsG.destroyEach()      
+    diamondsG.destroyEach()    
+    invoG.destroyEach()
+    obstacleG.destroyEach()
     path.velocityY=0
     invCollider.visible=false
     boy.changeAnimation("gameOver",endImg);
