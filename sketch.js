@@ -146,7 +146,7 @@ function draw() {
     text("Continue?  Press the Space Bar", 70,200)
     text("Chances Left: "+chance+" -1 :)",110,150)
     swordGroup.destroyEach();jwelleryG.destroyEach()
-    obstacleG.destroyEach()
+    obstacleG.destroyEach();invoG.destroyEach()
     cashG.destroyEach();
     diamondsG.destroyEach()     
     path.velocityY=0
