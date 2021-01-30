@@ -1,5 +1,7 @@
 var PLAY=1
 var END=0
+var CHANCE=2
+chance=5; missed=0
 var gameState= PLAY
 var path,boy,cash,diamonds,jwellery,sword;
 var pathImg,boyImg,cashImg,diamondsImg,jwelleryImg,swordImg;
@@ -8,9 +10,11 @@ var sword,cash,jwllery,diamonds;
 var cashG,diamondsG,jwelleryG,swordGroup;
 
 function preload(){
+  vignette = loadImage("vignette.png")
   pathImg = loadImage("Road.png");
   boyImg = loadAnimation("runner1.png","runner2.png");
   BoyImg = loadAnimation("runner1.png")
+  obsImg = loadImage("obstacle1.png")
   cashImg = loadImage("cash.png");
   diamondsImg = loadImage("diamonds.png");
   jwelleryImg = loadImage("jwell.png");
@@ -24,23 +28,37 @@ function setup(){
   createCanvas(400,400);
 // Moving background
 
-invCollider=createSprite(200,350,400,10)
+invCollider=createSprite(200,395,400,10)
+  
 path=createSprite(200,200);
 path.addImage(pathImg);
 path.velocityY = 4;
+vignetteRed=createSprite(200,200,400,400)
+vignetteRed.addImage(vignette)
+vignetteRed.visible=false
+
+redS=createSprite(200,385,400,30)
+redS.visible=false
+redSp=createSprite(200,385,400,30)
+redSp.visible=false  
+redSpr=createSprite(200,385,400,30)
+redSpr.visible=false
+
 //creating boy running
 boy = createSprite(70,330,20,20);
 boy.scale=0.08;
 boy.setCollider("circle",10,10,500) 
 
 cashG=new Group();
+obstacleG=new Group();
+  invoG=new Group()
 diamondsG=new Group();
 jwelleryG=new Group();
 swordGroup=new Group();
 
 
 boy.addAnimation("SahilRunning",boyImg);
-  boy.addAnimation("gameOver",endImg)
+boy.addAnimation("gameOver",endImg)
 
 }
 
@@ -68,10 +86,18 @@ function draw() {
     boy.changeAnimation("SahilRunning",boyImg);
 
    // sound.play();
+    createObstacle();
     createCash();
     createDiamonds();
     createJwellery();
     createSword();
+  }
+  if (keyDown("space")&& invo.isTouching(boy)){
+      obstacleG.destroyEach()
+      }else if(obstacleG.isTouching(boy)) {
+        obstacleG.destroyEach()
+        invoG.destroyEach()
+        gameState=CHANCE 
   }
     if (cashG.isTouching(boy)) {
       cashG.destroyEach();
@@ -83,65 +109,126 @@ function draw() {
       treasureCollection=treasureCollection+250
     
       
-    }else if(jwelleryG.isTouching(boy)) {
-      jwelleryG.destroyEach();
+    }
+  else if(jwelleryG.isTouching(boy)) {jwelleryG.destroyEach();
       treasureCollection=treasureCollection+150
       
-    }else if(swordGroup.isTouching(boy)) {
-      swordGroup.destroyEach();
-      gameState=END   
-     }
-  
-  else if (swordGroup.isTouching(invCollider)) {
-gameState=END
-      }else if (jwelleryG.isTouching(invCollider)) {
-gameState=END
-  }else if  (diamondsG.isTouching(invCollider)){
-gameState=END
     }
-  else {
-    if (cashG.isTouching(invCollider)){
-gameState=END      
-    }
+  else if(swordGroup.isTouching(boy)) {gameState=CHANCE       
+  }else if (jwelleryG.isTouching(invCollider)) {
+    missed+=1                                            
+    jwelleryG.destroyEach()
+    vignetteRed.visible=true
+   }else if  (diamondsG.isTouching(invCollider)){
+     missed+=1                                                 
+     diamondsG.destroyEach()
+     vignetteRed.visible=true
+                                                }
+   else {if (cashG.isTouching(invCollider)){
+     missed+=1                                       
+     cashG.destroyEach()
+     vignetteRed.visible=true
+} 
   }
-  if (gameState==END){
-    fill(0)
+  if (missed>=5){
+    gameState=END
+  }
+  if (gameState== CHANCE ){
+    if (chance<=0){
+    gameState=END
+  } else {    
+    stroke("black")
+
+    fill("yellow")
     textSize(30)
     text("Score: "+treasureCollection,140,300)
-    swordGroup.remove(sword) 
-    diamondsG.remove(diamonds)
-    cashG.remove(cash)
-    jwelleryG.remove(jwellery)
-    
-
-    
-    sword.velocityY=0; sword.lifetime=0
-    jwellery.velocityY=0;jwellery.lifetime=0
-    cash.velocityY=0;cash.lifetime=0
-    diamonds.velocityY=0;diamonds.lifetime=0    
+    fill("red")
+    textSize(20)
+    text("Continue? Press the Space Bar", 70,200)
+    swordGroup.destroyEach();jwelleryG.destroyEach()
+    obstacleG.destroyEach()
+    cashG.destroyEach();
+    diamondsG.destroyEach()     
+    path.velocityY=0
+    invCollider.visible=false
+    boy.visible=false
+  }
+}
+  if (gameState==END){
+    fill("yellow")
+    textSize(30)
+    text("Score: "+treasureCollection,140,300)
+    swordGroup.destroyEach();jwelleryG.destroyEach()
+    obstacleG.destroyEach()
+    cashG.destroyEach();
+    diamondsG.destroyEach()      
     path.velocityY=0
     invCollider.visible=false
     boy.changeAnimation("gameOver",endImg);
     boy.scale=0.5
     boy.x=20;boy.y=200;
-    textSize(15)
+    textSize(20)  
+    text("Try Again? Hit the Space Bar", 40,200)
+
     console.log("On scaling up gameover anime the pos becomes distorted i dont know why. ")
 }
+  if ((keyWentUp("space")) && (gameState==CHANCE) && chance>0){
+    chance-=1
+    console.log("C :"+chance)
+    gameState=PLAY
+    vignetteRed.visible=false
+    missed=0
+    obstacle.destroy()
+    cash.destroy()
+    diamonds.destroy()
+    sword.destroy()
+    jwellery.destroy()
+    boy.visible=true
+    
+  }
   if ((keyDown("space")) && (gameState==END)){
     gameState=PLAY
     treasureCollection=0
+    chance=5;missed=0;
+  vignetteRed.visible=false
+    obstacle.destroy()
     cash.destroy()
     diamonds.destroy()
     sword.destroy()
     jwellery.destroy()
   }
-  console.log(gameState)
+  console.log(missed)
   
   textSize(20);
   fill(rgb(150,150,250));
   text("Treasure: "+ treasureCollection,150,30);
 }
 
+
+
+function createObstacle() {
+  if (World.frameCount % 130 == 0 && gameState==PLAY) {
+  obstacle = createSprite(Math.round(random(50, 350),40, 10, 10));
+  obstacle.addImage(obsImg);
+  obstacle.scale=0.35;
+  obstacle.setCollider("rectangle",0,0,550,250)
+  obstacle.velocityY = random(4,5);
+  obstacle.lifetime = 150;
+  obstacleG.add(obstacle);
+  invo=createSprite(obstacle.x,obstacle.y,10,10)
+  invo.addImage(obsImg)
+  invo.scale=0.35
+  invo.velocityY=obstacle.velocityY;
+  invo.lifetime=100
+    invoG.add(invo)
+    //invo.visible=false
+    invo.setCollider("rectangle",0,0,550,550)
+    //invo.debug=true
+    invo.depth=boy.depth-1
+    obstacle.depth=boy.depth-1
+    
+  }
+}
 function createCash() {
   if (World.frameCount % 120 == 0&& gameState==PLAY) {
   cash = createSprite(Math.round(random(50, 350),40, 10, 10));
@@ -150,6 +237,7 @@ function createCash() {
   cash.velocityY = random(3,4);
   cash.lifetime = 150;
   cashG.add(cash);
+  vignetteRed.visible=false
   }
 }
 
@@ -161,6 +249,7 @@ function createDiamonds() {
   diamonds.velocityY = random(3,5);
   diamonds.lifetime = 150;
   diamondsG.add(diamonds);
+  vignetteRed.visible=false
 }
 }
 
@@ -172,7 +261,7 @@ function createJwellery() {
   jwellery.velocityY = random(5,7);
   jwellery.lifetime = 150;
   jwelleryG.add(jwellery);
-  }
+  vignetteRed.visible=false  }
 }
 
 function createSword(){
